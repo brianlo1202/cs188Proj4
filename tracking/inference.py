@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -74,8 +74,14 @@ class DiscreteDistribution(dict):
         >>> empty
         {}
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        totalSum = float(self.total())
+
+        if totalSum == 0:
+            return
+        else:
+            for key in self.keys():
+                self[key] = self[key] / totalSum
+
 
     def sample(self):
         """
@@ -98,9 +104,16 @@ class DiscreteDistribution(dict):
         >>> round(samples.count('d') * 1.0/N, 1)
         0.0
         """
-        "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        randomNumFrom0To1 = random.random()
+        sum = 0
 
+        if (self.total() != 1):
+            self.normalize()
+
+        for key, prob in self.iteritems():
+            sum += prob
+            if randomNumFrom0To1 < sum:
+                return key
 
 class InferenceModule:
     """
@@ -169,7 +182,17 @@ class InferenceModule:
         Return the probability P(noisyDistance | pacmanPosition, ghostPosition).
         """
         "*** YOUR CODE HERE ***"
-        raiseNotDefined()
+        if noisyDistance == None:
+            if ghostPosition == jailPosition:
+                return 1
+            else:
+                return 0
+        if ghostPosition == jailPosition:
+            return 0
+
+        manhattanDistBtwPMAndGhost = manhattanDistance(pacmanPosition, ghostPosition)
+        observationProb = busters.getObservationProbability(noisyDistance, manhattanDistBtwPMAndGhost)
+        return observationProb
 
     def setGhostPosition(self, gameState, ghostPosition, index):
         """
@@ -348,7 +371,7 @@ class ParticleFilter(InferenceModule):
         Return the agent's current belief state, a distribution over ghost
         locations conditioned on all evidence and time passage. This method
         essentially converts a list of particles into a belief distribution.
-        
+
         This function should return a normalized distribution.
         """
         "*** YOUR CODE HERE ***"
